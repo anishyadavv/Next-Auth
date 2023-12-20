@@ -2,17 +2,44 @@
 import { useState } from "react"
 import React from "react"
 import  Link from "next/link"
+import axios from 'axios'
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 const Signup = () => {
-
+  const router = useRouter();
+  const [loading,setLoading] = useState(false);
   const [user,setUser] = useState({
     name:"",
     email:"",
     password:"",
   });
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
     console.log(user);
+    try{
+      setLoading(true);
+          axios.post('/api/user/signup',{
+            username: user.name,
+            email: user.email,
+            password: user.password
+          })
+          .then((response)=>{
+              console.log(response);
+              toast.success("Account Created Successfully");
+              router.push('/login');
+          })
+          .catch((error)=>{
+            toast.error(error)
+          })
+    }
+    catch(error:any){
+      console.log(error);
+      toast.error(error);
+    }
+    finally{
+      setLoading(false);
+    }
   }
 
   return (
@@ -23,6 +50,8 @@ const Signup = () => {
   </div>
 
   <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <svg className="animate-spin h-5 w-5 mr-3 ..." viewBox="0 0 24 24">
+  </svg>
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">Name</label>
@@ -51,13 +80,13 @@ const Signup = () => {
       </div>
 
       <div>
-        <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+        <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{loading ? "Processing...." :"Sign Up"}</button>
       </div>
     </form>
 
     <p className="mt-10 text-center text-sm text-gray-500">
       Already have an Account?
-      <Link href="/login" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"> Signin</Link>
+      <Link href="/login" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"> Sign in</Link>
     </p>
   </div>
 </div>

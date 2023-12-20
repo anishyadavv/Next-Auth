@@ -2,16 +2,45 @@
 import { useState } from "react"
 import React from "react"
 import  Link from "next/link"
+import toast from "react-hot-toast"
+import axios from 'axios'
+import { useRouter } from "next/navigation"
 const Login = () => {
-
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [user,setUser] = useState({
     email:"",
     password:"",
   });
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit =  async(e:any) => {
     e.preventDefault();
     console.log(user);
+    try{
+      setLoading(true);
+      const response = await axios.post('/api/user/login',{
+            email: user.email,
+            password: user.password
+          });
+      console.log(response);
+
+      if(response.data.error){
+        console.log(response.data.error);
+        toast.error(response.data.error);
+      }
+      else{
+        console.log(response.data);
+        toast.success("Login Successfully");
+        router.push('/profile');
+      }
+    }
+    catch(error:any){
+      console.log(error);
+      toast.error(error);
+    }
+    finally{
+      setLoading(false);
+    }
   }
 
   return (
@@ -43,7 +72,7 @@ const Login = () => {
       </div>
 
       <div>
-        <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+        <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{loading ? "Processing...." :"Sign In"}</button>
       </div>
     </form>
 
